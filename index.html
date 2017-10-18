@@ -1,0 +1,146 @@
+<html lang="zh-CN" class="">
+
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            background-color: #ccc;
+        }
+
+        .warp {
+            margin: 50px;
+            position: relative;
+            width: 500px;
+            height: 500px;
+            background-color: #aaa;
+            padding: 0;
+        }
+
+        .warp>div {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            transform: translate3d(-50%, -50%, 0);
+        }
+
+        .warp>div.black {
+            background-color: black;
+        }
+
+        .warp>div.white {
+            background-color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="warp">
+
+    </div>
+
+    <div class="menu">
+        <input type="button" value="悔棋" onclick="back()">
+        <input type="button" value="撤销悔棋" onclick="unback()">
+        <input type="button" value="重玩" onclick="restart()">
+    </div>
+
+    <script src='p.js'></script>
+    <script>
+        var gameData = new GameData();
+        var gameMap = new GameMap(11, 11);
+        var gamePlay = new GamePlay();
+
+        // 设置数据源变化时，通知回调
+        gameData.setUpdateCallback(function (action, type) {
+            // 通知棋盘变化
+            gameMap.update(action, type);
+        });
+
+        // 设置棋盘数据变化时，渲染回调
+        gameMap.setRenderCallback(function (list, a, check) {
+
+            // DOM渲染棋盘
+            var warp = document.querySelector('.warp');
+            warp.innerHTML = "";
+            for (let i = 0, col = list.length; i < col; i++) {
+                for (let j = 0, row = list[i].length; j < row; j++) {
+                    let tempA = list[i][j];
+                    if (tempA !== null) {
+                        let div = document.createElement('div');
+                        div.style.left = tempA.position.x * 50 + 'px';
+                        div.style.top = tempA.position.y * 50 + 'px';
+                        div.classList.add(tempA.color === EColor.BLACK ? "black" : "white");
+                        warp.appendChild(div);
+                    }
+                }
+            }
+
+            if(!check){
+                return;
+            }
+
+            // 游戏规则判断
+            var rs = gamePlay.checkWin(list, a);
+            if (rs === true) { // 赢啦
+                // game over
+                gameOver = true;
+                // 看看是哪位
+                setTimeout(function () {
+                    alert(EColor[a.color] + " 赢啦！");
+                }, 100);
+
+            }
+        });
+
+
+
+
+        let isBlack = true;
+        let gameOver = false;
+
+
+        window.onload = function () {
+            var warp = document.querySelector('.warp');
+            warp.addEventListener("click", function (e) {
+                if (gameOver || !e.target.classList.contains("warp")) {
+                    return;
+                }
+                let x = (e.layerX || e.offsetX) + 25,
+                    y = (e.layerY || e.offsetY) + 25;
+                x = parseInt(x / 50);
+                y = parseInt(y / 50);
+                gameData.next(new Action({ x: x, y: y }, isBlack ? EColor.BLACK : EColor.WHITE));
+                isBlack = !isBlack;
+            });
+        }
+
+        function back() {
+            if(gameOver){
+                return;
+            }
+            gameData.back();
+        }
+
+        function unback(){
+            if(gameOver){
+                return;
+            }
+            gameData.unBack();
+        }
+
+        function restart(){
+            gameOver = false;
+            gameData.reset();
+            gameMap.reset();
+        }
+
+
+    </script>
+
+</body>
+
+</html>
