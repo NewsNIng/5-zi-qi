@@ -7,4 +7,5 @@
 - 重开一把
 - 最小代价切换 dom / canvas 界面实现方式
 
-(http://github.com/NewsNing/5-zi-qi/raw/master/other/1.png)
+![image](http://github.com/NewsNing/5-zi-qi/raw/master/other/1.png)
+![image](http://github.com/NewsNing/5-zi-qi/raw/master/other/2.png)
